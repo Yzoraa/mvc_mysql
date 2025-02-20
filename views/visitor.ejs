@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- axios 사용 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <form>
+        <h2>방명록 등록</h2>
+        <input name="userid" placeholder="유저id 등록" />
+        <input name="name" placeholder="사용자 이름" />
+        <input name="comment" placeholder="방명록" />
+        <button type="submit" onclick="connectDB()">등록</button>
+    </form>
+    <!-- <button onclick="createDate()">테스트용</button> -->
+    
+    <br />
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>작성자</th>
+                <th>방명록</th>
+                <th>수정</th>
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let i=0; i < getvisitor.length; i++) { %>
+                <tr id="tr-<%= getvisitor[i].id %>">
+                    <td><%= getvisitor[i].id %></td>
+                    <td><a href="/visitor/detail/<%= getvisitor[i].id %>"><%= getvisitor[i].name %></td></a>
+                    <td><%= getvisitor[i].comment %></td>
+                    <td><button onclick="updatePage('<%= getvisitor[i].id %>')" type="button">수정</button></td>
+                    <td><button onclick="deleteVisitor('<%= getvisitor[i].id %>')" type="button">삭제</button></td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+<script>
+    const connectDB = (event) =>{
+        // 기본 제출 동작 방지
+        event.preventDefault();
+
+        const userid = document.querySelector("input[name='userid']").value;
+        const name = document.querySelector("input[name='name']").value;
+        const comment = document.querySelector("input[name='comment']").value;
+
+        axios({
+            method: "post",
+            url: "/visitor/post/real",
+            data: {userid, name, comment},
+            headers: { "Content-Type": "application/json" }
+        }).then((res) =>{ 
+            alert("등록성공");
+            location.reload();
+        })
+        .catch((error) => {
+            console.error("데이터 저장 오류:", error);
+        });
+    };
+
+    document.querySelector("form").addEventListener("submit", connectDB);
+
+    const deleteVisitor = (id) =>{
+        axios({
+            method:'delete',
+            url: `/visitor/delete/${id}`
+        }).then((res) =>{
+            alert("삭제성공");
+            location.reload();
+        }).catch((error) => {
+            console.log(error);
+            // console.error("데이터 삭제 오류:", error);
+        });
+    };
+
+    const updatePage = (id) =>{
+        window.location.href = `/visitor/write/${id}`;
+    }
+
+    // const createDate = () =>{
+    //     axios({
+    //         method: "post",
+    //         url: "/visitor/post/test",
+    //         data: {userid:1, name:"테스트", comment:'테스트 테스트'},
+    //     }).then((res) =>{ 
+    //         alert("등록성공");
+    //         location.reload();
+    //     })
+    //     .catch((error) => {
+    //     console.error("데이터 저장 오류:", error);
+    //     });
+    // };
+
+</script>
+</html>
