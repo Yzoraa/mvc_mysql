@@ -1,25 +1,38 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const port = 3000;
+app.use(cookieParser("mySecretKey")); // 서명된 쿠키 사용
 
-app.use(express.json()); // JSON 형식의 데이터를 받기 위해 추가
-app.use(express.urlencoded({ extended: true })); // form 데이터 받기 위해 추가
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 라우팅 처리
-const indexRouter = require('./routes/indexRoutes');
-app.use('/visitor', indexRouter);
-
-// 미들웨어
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
-// 기본 홈 라우트
+// 홈 라우트 - 쿠키 값 확인 후 팝업 표시 여부 결정
 app.get("/", (req, res) => {
-    res.render("index", {title: "mvc패턴과 mysql 연습"});
+    const hidePopup = req.signedCookies.hidePopup || false; // 쿠키 값 확인
+    res.render("main", { hidePopup }); // EJS에 hidePopup 값 전달
 });
 
-// 서버연결
+// 팝업 차단 쿠키 설정 (체크 후 닫기 버튼을 누르면 실행됨)
+app.post("/set-cookie", (req, res) => {
+    const { hidePopup } = req.body;
+
+    if (hidePopup === "true") {
+        res.cookie("hidePopup", true, {
+            maxAge: 24 * 60 * 60 * 1000, // 1일 유지
+            httpOnly: true,
+            signed: true,
+        });
+    }
+
+    res.send({ success: true });
+});
+
+// 서버 실행
 app.listen(port, () => {
     console.log(`서버 실행 ${port}`);
 });
