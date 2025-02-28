@@ -6,7 +6,32 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>MVC패턴과 MYSQL 연결</h1>
-    <a href="/visitor">방명록 남기기</a>
+    <h1>JWT 실습</h1>
+    <div id="info">
+        <a href="/login">로그인 하기</a>
+    </div>
 </body>
 </html>
+<!-- <script>
+    async function login () {
+        const token = document.cookie.token;
+        const info = document.querySelector("#info");
+
+        let data = "";
+
+        if(!token){
+            data = '<a href="/login">로그인 하기</a>';
+        } else{
+            const res = await axios.post("/verify", {
+                headers : {Authorization: `Bearer ${token}` },
+            });
+
+            if(res.data.result) {
+                data = `
+                <p>${res.data.name}님 환영합니다.</p>
+                <button type="button" onClick='logout()'>로그아웃</button>
+                `;
+            }
+        }
+    }
+</script> -->

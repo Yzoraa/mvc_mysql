@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <h1>JWT 실습 로그인</h1>
+    <form name="login-form">
+        <input type="text" id="id" placeholder="ID" /><br />
+        <input type="password" id="pw" placeholder="PW" /><br />
+        <button type="button" onclick="login()">로그인</button>
+    </form>
+</body>
+<script>
+    async function login() {
+        console.log("login 요청 실행");
+        const form = document.forms["login-form"];
+        const id = form.id.value;
+        const pw = form.pw.value;
+
+        try {
+            const res = await axios({
+                method: "POST",
+                url: "/login",
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                data: { id, pw }
+            });
+
+            // console.log("서버 응답:", res.data);
+
+            if (res.data.result) {
+                alert("로그인 성공, 토큰 발급");
+                verifyToken(res.data.token);
+                console.log("토큰 :", res.data.token);
+            } else {
+                alert(`로그인 실패: ${res.data.message}`);
+            }
+            
+        } catch (error) {
+            console.log("로그인 요청 중 오류 발생", error);
+            alert("로그인 요청 중 오류 발생");
+        }
+    }
+
+    async function verifyToken(token) {
+        console.log("jmt 검증 요청 실행");
+        try {
+            const res = await axios({
+                method: "POST",
+                url: "/verify",
+                headers: {
+                    // 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            console.log("서버 응답 데이터:", res.data);
+
+            if (res.data.result) {
+                alert("로그인 완료 페이지로 이동");
+                window.location.href = "/loginFinish";
+            } else {
+                alert(`검증 실패: ${res.data.message}`);
+            }
+        } catch (error) {
+            console.error("JWT 검증 실패:", error);
+        }
+    }
+</script>
+</html>
